@@ -21,7 +21,10 @@ app.use(session({
     cookie: { secure: false } // Cambiar a true si usas HTTPS
 }));
 
+// Configuración de CORS
 app.use(cors());
+
+// Configuración de bodyParser para analizar cuerpos de solicitud
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -219,7 +222,7 @@ app.post('/filtrados', async (req, res) => {
                 rp.fecha_reporte AS fechaReporte,
                 rp.Comment AS comentario
             FROM reporte_usuarios rp
-            JOIN resgitro_usuarios ru ON rp.idusuarios = ru.id
+            JOIN registro_usuarios ru ON rp.idusuarios = ru.id
             WHERE rp.fecha_reporte BETWEEN @fechaDesde AND @fechaHasta
         `;
         
@@ -237,6 +240,9 @@ app.post('/filtrados', async (req, res) => {
         res.status(500).send('Error al obtener los reportes');
     }
 });
+
+// Servir archivos estáticos desde la carpeta de subida de archivos
+app.use('/uploads', express.static('uploads'));
 
 // Iniciar el servidor automáticamente al ejecutar este archivo con Node.js
 async function startServer() {
