@@ -7,29 +7,27 @@ dotenv.config();
 const config = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    
-    
     server: process.env.DB_SERVER,
     database: process.env.DB_DATABASE,
     options: {
         encrypt: true,
-        enableArithAbort: true  // Corrección del error de tipeo
+        enableArithAbort: true
     }
 };
 
-// Función para conectar a la base de datos
+// Function to connect to the database
 async function connectToDatabase() {
     try {
         const pool = await sql.connect(config);
-        console.log('Conexión establecida con la base de datos.');
+        console.log('Database connection established.');
         return pool;
     } catch (error) {
-        console.error('Error al conectar con la base de datos:', error.message);
+        console.error('Error connecting to the database:', error.message);
         throw error;
     }
 }
 
-// Función para manejar CORS
+// Function to handle CORS
 const corsHandler = async function (context, req) {
     context.res = {
         status: 200,
@@ -41,21 +39,19 @@ const corsHandler = async function (context, req) {
     };
 };
 
-// Función para registrar usuarios
+// Function to register users
 module.exports.register = AzureFunction.HttpTrigger(corsHandler, {
     methods: ['options', 'post'],
     authLevel: 'anonymous'
 }, async function (context, req) {
-    context.log('Registrando usuario...');
+    context.log('Registering user...');
 
     const { nombre, apellido, direccion, email, clave } = req.body;
 
     if (!nombre || !apellido || !direccion || !email || !clave) {
         context.res = {
             status: 400,
-            
-      
-body: { message: 'Por favor, complete todos los campos.' }
+            body: { message: 'Please fill in all the fields.' }
         };
         return;
     }
@@ -70,9 +66,7 @@ body: { message: 'Por favor, complete todos los campos.' }
         `;
 
         const request = pool.request();
-        request.
-  
-input('nombre', sql.VarChar(255), nombre);
+        request.input('nombre', sql.VarChar(255), nombre);
         request.input('apellido', sql.VarChar(255), apellido);
         request.input('direccion', sql.VarChar(255), direccion);
         request.input('correo', sql.VarChar(255), email);
@@ -83,31 +77,31 @@ input('nombre', sql.VarChar(255), nombre);
 
         context.res = {
             status: 201,
-            body: { message: 'Usuario registrado correctamente.', userId: lastInsertedId }
+            body: { message: 'User registered successfully.', userId: lastInsertedId }
         };
 
     } catch (error) {
-        console.error('Error al registrar usuario:', error.message);
+        console.error('Error registering user:', error.message);
         context.res = {
             status: 500,
-            body: { message: 'Error en el registro.', error: error.message }
+            body: { message: 'Error registering user.', error: error.message }
         };
     }
 });
 
-// Función para iniciar sesión de usuarios
+// Function to log in users
 module.exports.login = AzureFunction.HttpTrigger(corsHandler, {
     methods: ['options', 'post'],
     authLevel: 'anonymous'
 }, async function (context, req) {
-    context.log('Iniciando sesión...');
+    context.log('Logging in user...');
 
     const { codigo, clave } = req.body;
 
     if (!codigo || !clave) {
         context.res = {
             status: 400,
-            body: { success: false, message: 'Por favor, ingrese código y clave.' }
+            body: { success: false, message: 'Please provide code and password.' }
         };
         return;
     }
@@ -131,55 +125,51 @@ module.exports.login = AzureFunction.HttpTrigger(corsHandler, {
         if (result.recordset.length === 0) {
             context.res = {
                 status: 404,
-                body: { success: false, message: 'Código o clave incorrectos.' }
+                body: { success: false, message: 'Incorrect code or password.' }
             };
             return;
         }
 
         const idUsuario = result.recordset[0].idusuarios;
 
-        // Guardar el registro en temp_usuarios_log
+        // Save the log in temp_usuarios_log
         const insertLogQuery = `
             INSERT INTO temp_usuarios_log (idUsuario, codigo, clave)
             VALUES (@idUsuario, @codigo, @clave);
         `;
         const insertLogRequest = pool.request();
-        insertLogRequest.
-        insertLog
-        input('idUsuario', sql.Int, idUsuario);
+        insertLogRequest.input('idUsuario', sql.Int, idUsuario);
         insertLogRequest.input('codigo', sql.VarChar, codigo);
         insertLogRequest.input('clave', sql.VarChar, clave);
         await insertLogRequest.query(insertLogQuery);
 
         context.res = {
             status: 200,
-            
-    
-body: { success: true, userId: idUsuario }
+            body: { success: true, userId: idUsuario }
         };
 
     } catch (error) {
-        console.error('Error al iniciar sesión:', error.message);
+        console.error('Error logging in:', error.message);
         context.res = {
             status: 500,
-            body: { success: false, message: 'Error en el inicio de sesión.', error: error.message }
+            body: { success: false, message: 'Error logging in.', error: error.message }
         };
     }
 });
 
-// Función para manejar la subida de reportes
+// Function to handle report submission
 module.exports.reporte = AzureFunction.HttpTrigger(corsHandler, {
     methods: ['options', 'post'],
     authLevel: 'anonymous'
 }, async function (context, req) {
-    context.log('Guardando reporte...');
+    context.log('Saving report...');
 
     const { longitude, latitude, comment, enubasu, province } = req.body;
 
     try {
         const pool = await connectToDatabase();
 
-        // Obtener el último idUsuario registrado en temp_usuarios_log
+        // Get the last idUsuario registered in temp_usuarios_log
         const getLastUserIdQuery = `
             SELECT TOP 1 idUsuario
             FROM temp_usuarios_log
@@ -189,9 +179,8 @@ module.exports.reporte = AzureFunction.HttpTrigger(corsHandler, {
 
         if (lastUserIdResult.recordset.length === 0) {
             context.res = {
-                
                 status: 404,
-                body: { success: false, message: 'No hay usuarios registrados en el log temporal.' }
+                body: { success: false, message: 'No users found in the temporary log.' }
             };
             return;
         }
@@ -201,9 +190,7 @@ module.exports.reporte = AzureFunction.HttpTrigger(corsHandler, {
         const request = pool.request();
         request.input('idUsuario', sql.Int, idUsuario);
         request.input('longitude', sql.VarChar(150), longitude);
-        request.
- 
-input('latitude', sql.VarChar(150), latitude);
+        request.input('latitude', sql.VarChar(150), latitude);
         request.input('comment', sql.NVarChar, comment);
         request.input('ImagePath', sql.NVarChar, 'Null');
         request.input('fecha_reporte', sql.DateTime, new Date());
@@ -219,26 +206,24 @@ input('latitude', sql.VarChar(150), latitude);
 
         context.res = {
             status: 200,
-            body: { message: 'Reporte guardado con éxito' }
+            body: { message: 'Report saved successfully.' }
         };
 
     } catch (error) {
-        
-        conso
-console.error('Error al guardar el reporte:', error.message);
+        console.error('Error saving report:', error.message);
         context.res = {
             status: 500,
-            body: { message: 'Error al guardar el reporte' }
+            body: { message: 'Error saving report.' }
         };
     }
 });
 
-// Función para filtrar reportes
+// Function to filter reports
 module.exports.filtrados = AzureFunction.HttpTrigger(corsHandler, {
     methods: ['options', 'post'],
     authLevel: 'anonymous'
 }, async function (context, req) {
-    context.log('Filtrando reportes...');
+    context.log('Filtering reports...');
 
     const { fechaDesde, fechaHasta } = req.body;
 
@@ -269,10 +254,10 @@ module.exports.filtrados = AzureFunction.HttpTrigger(corsHandler, {
         };
 
     } catch (error) {
-        console.error('Error al filtrar reportes:', error.message);
+        console.error('Error filtering reports:', error.message);
         context.res = {
             status: 500,
-            body: { message: 'Error al obtener los reportes' }
+            body: { message: 'Error retrieving reports.' }
         };
     }
 });
