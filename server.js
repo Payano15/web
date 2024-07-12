@@ -1,8 +1,39 @@
-const { AzureFunction, Context, HttpRequest } = require('@azure/functions');
+const express = require('express');
+const bodyParser = require('body-parser');
 const sql = require('mssql');
 const dotenv = require('dotenv');
+const cors = require('cors');
+const multer = require('multer');
+const path = require('path');
+const session = require('express-session');
 
 dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Configuración de sesiones
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false } // Cambiar a true si usas HTTPS
+}));
+
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// Configuración de Multer para la subida de archivos
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads/'); // Directorio de subida de archivos
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // Renombrar archivo para evitar duplicados
+    }
+});
+const upload = multer({ storage: storage });
 
 const config = {
     user: process.env.DB_USER,
@@ -15,45 +46,26 @@ const config = {
     }
 };
 
-// Function to connect to the database
+// Función para conectar a la base de datos
 async function connectToDatabase() {
     try {
-        const pool = await sql.connect(config);
-        console.log('Database connection established.');
-        return pool;
+        if (!sql.globalConnection) {
+            sql.globalConnection = await sql.connect(config);
+            console.log('Conexión establecida con la base de datos.');
+        }
+        return sql.globalConnection;
     } catch (error) {
-        console.error('Error connecting to the database:', error.message);
+        console.error('Error al conectar con la base de datos:', error.message);
         throw error;
     }
 }
 
-// Function to handle CORS
-const corsHandler = async function (context, req) {
-    context.res = {
-        status: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'OPTIONS, GET, POST, PUT, DELETE',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-        }
-    };
-};
-
-// Function to register users
-module.exports.register = AzureFunction.HttpTrigger(corsHandler, {
-    methods: ['options', 'post'],
-    authLevel: 'anonymous'
-}, async function (context, req) {
-    context.log('Registering user...');
-
+// Registro de usuarios
+app.post('/register', async (req, res) => {
     const { nombre, apellido, direccion, email, clave } = req.body;
 
     if (!nombre || !apellido || !direccion || !email || !clave) {
-        context.res = {
-            status: 400,
-            body: { message: 'Please fill in all the fields.' }
-        };
-        return;
+        return res.status(400).json({ message: 'Por favor, complete todos los campos.' });
     }
 
     try {
@@ -62,48 +74,33 @@ module.exports.register = AzureFunction.HttpTrigger(corsHandler, {
         const insertQuery = `
             INSERT INTO registro_usuarios (nombre, apellido, direccion, email, clave)
             OUTPUT INSERTED.id
-            VALUES (@nombre, @apellido, @direccion, @correo, @clave);
+            VALUES (@nombre, @apellido, @direccion, @email, @clave);
         `;
 
-        const request = pool.request();
+        const request = new sql.Request(pool);
         request.input('nombre', sql.VarChar(255), nombre);
         request.input('apellido', sql.VarChar(255), apellido);
         request.input('direccion', sql.VarChar(255), direccion);
-        request.input('correo', sql.VarChar(255), email);
+        request.input('email', sql.VarChar(255), email);
         request.input('clave', sql.VarChar(255), clave);
 
         const insertResult = await request.query(insertQuery);
         const lastInsertedId = insertResult.recordset[0].id;
 
-        context.res = {
-            status: 201,
-            body: { message: 'User registered successfully.', userId: lastInsertedId }
-        };
+        res.status(201).json({ message: 'Usuario registrado correctamente.', userId: lastInsertedId });
 
     } catch (error) {
-        console.error('Error registering user:', error.message);
-        context.res = {
-            status: 500,
-            body: { message: 'Error registering user.', error: error.message }
-        };
+        console.error('Error al registrar usuario:', error.message);
+        res.status(500).json({ message: 'Error en el registro.', error: error.message });
     }
 });
 
-// Function to log in users
-module.exports.login = AzureFunction.HttpTrigger(corsHandler, {
-    methods: ['options', 'post'],
-    authLevel: 'anonymous'
-}, async function (context, req) {
-    context.log('Logging in user...');
-
+// Inicio de sesión de usuarios
+app.post('/login', async (req, res) => {
     const { codigo, clave } = req.body;
 
     if (!codigo || !clave) {
-        context.res = {
-            status: 400,
-            body: { success: false, message: 'Please provide code and password.' }
-        };
-        return;
+        return res.status(400).json({ success: false, message: 'Por favor, ingrese código y clave.' });
     }
 
     try {
@@ -116,116 +113,87 @@ module.exports.login = AzureFunction.HttpTrigger(corsHandler, {
             AND clave = @clave;
         `;
 
-        const request = pool.request();
+        const request = new sql.Request(pool);
         request.input('codigo', sql.VarChar, codigo);
         request.input('clave', sql.VarChar, clave);
 
         const result = await request.query(query);
-
+        
         if (result.recordset.length === 0) {
-            context.res = {
-                status: 404,
-                body: { success: false, message: 'Incorrect code or password.' }
-            };
-            return;
+            return res.status(404).json({ success: false, message: 'Código o clave incorrectos.' });
         }
 
         const idUsuario = result.recordset[0].idusuarios;
 
-        // Save the log in temp_usuarios_log
+        // Guardar el registro en temp_usuarios_log
         const insertLogQuery = `
             INSERT INTO temp_usuarios_log (idUsuario, codigo, clave)
             VALUES (@idUsuario, @codigo, @clave);
         `;
-        const insertLogRequest = pool.request();
+        const insertLogRequest = new sql.Request(pool);
         insertLogRequest.input('idUsuario', sql.Int, idUsuario);
         insertLogRequest.input('codigo', sql.VarChar, codigo);
         insertLogRequest.input('clave', sql.VarChar, clave);
         await insertLogRequest.query(insertLogQuery);
 
-        context.res = {
-            status: 200,
-            body: { success: true, userId: idUsuario }
-        };
+        res.status(200).json({ success: true, userId: idUsuario });
 
     } catch (error) {
-        console.error('Error logging in:', error.message);
-        context.res = {
-            status: 500,
-            body: { success: false, message: 'Error logging in.', error: error.message }
-        };
+        console.error('Error al iniciar sesión:', error.message);
+        res.status(500).json({ success: false, message: 'Error en el inicio de sesión.', error: error.message });
     }
 });
 
-// Function to handle report submission
-module.exports.reporte = AzureFunction.HttpTrigger(corsHandler, {
-    methods: ['options', 'post'],
-    authLevel: 'anonymous'
-}, async function (context, req) {
-    context.log('Saving report...');
-
-    const { longitude, latitude, comment, enubasu, province } = req.body;
+// Ruta para manejar la subida de reportes
+app.post('/reporte', upload.single('imageUpload'), async (req, res) => {
+    const { longitude, latitude, comment, enubasu, province } = req.body; // Incluyendo 'province'
 
     try {
         const pool = await connectToDatabase();
 
-        // Get the last idUsuario registered in temp_usuarios_log
+        // Obtener el último idUsuario registrado en temp_usuarios_log
         const getLastUserIdQuery = `
             SELECT TOP 1 idUsuario
             FROM temp_usuarios_log
             ORDER BY id DESC;
         `;
-        const lastUserIdResult = await pool.request().query(getLastUserIdQuery);
+        const getLastUserIdRequest = new sql.Request(pool);
+        const lastUserIdResult = await getLastUserIdRequest.query(getLastUserIdQuery);
 
         if (lastUserIdResult.recordset.length === 0) {
-            context.res = {
-                status: 404,
-                body: { success: false, message: 'No users found in the temporary log.' }
-            };
-            return;
+            return res.status(404).json({ success: false, message: 'No hay usuarios registrados en el log temporal.' });
         }
 
         const idUsuario = lastUserIdResult.recordset[0].idUsuario;
 
-        const request = pool.request();
+        const request = new sql.Request(pool);
         request.input('idUsuario', sql.Int, idUsuario);
         request.input('longitude', sql.VarChar(150), longitude);
         request.input('latitude', sql.VarChar(150), latitude);
         request.input('comment', sql.NVarChar, comment);
-        request.input('ImagePath', sql.NVarChar, 'Null');
+        request.input('imagePath', sql.NVarChar, req.file.path);
         request.input('fecha_reporte', sql.DateTime, new Date());
         request.input('estatus', sql.VarChar(50), 'ACT');
         request.input('pais', sql.VarChar(50), 'Republica Dominicana');
         request.input('enubasu', sql.VarChar(10), enubasu);
-        request.input('provincia', sql.VarChar(100), province);
+        request.input('provincia', sql.VarChar(100), province); // Agregando 'province'
 
-        await request.query(`
+        const result = await request.query(`
             INSERT INTO reporte_usuarios (idusuarios, longitud, latitud, Comment, ImagePath, fecha_reporte, estatus, pais, enubasu, provincia)
-            VALUES (@idUsuario, @longitude, @latitude, @comment, @ImagePath, @fecha_reporte, @estatus, @pais, @enubasu, @provincia)
+            VALUES (@idUsuario, @longitude,  @latitude, @comment, @imagePath, @fecha_reporte, @estatus, @pais, @enubasu, @provincia)
         `);
 
-        context.res = {
-            status: 200,
-            body: { message: 'Report saved successfully.' }
-        };
-
+        res.json({ message: 'Reporte guardado con éxito' });
     } catch (error) {
-        console.error('Error saving report:', error.message);
-        context.res = {
-            status: 500,
-            body: { message: 'Error saving report.' }
-        };
+        console.error('Error al guardar el reporte:', error.message);
+        res.status(500).send('Error al guardar el reporte');
     }
 });
 
-// Function to filter reports
-module.exports.filtrados = AzureFunction.HttpTrigger(corsHandler, {
-    methods: ['options', 'post'],
-    authLevel: 'anonymous'
-}, async function (context, req) {
-    context.log('Filtering reports...');
-
+// Ruta para filtrar reportes
+app.post('/filtrados', async (req, res) => {
     const { fechaDesde, fechaHasta } = req.body;
+    console.log('Fechas recibidas:', fechaDesde, fechaHasta); // Debugging
 
     try {
         const pool = await connectToDatabase();
@@ -239,25 +207,26 @@ module.exports.filtrados = AzureFunction.HttpTrigger(corsHandler, {
                 rp.fecha_reporte AS fechaReporte,
                 rp.Comment AS comentario
             FROM reporte_usuarios rp
-            JOIN registro_usuarios ru ON rp.idusuarios = ru.id
+            JOIN resgitro_usuarios ru ON rp.idusuarios = ru.id
             WHERE rp.fecha_reporte BETWEEN @fechaDesde AND @fechaHasta
         `;
+        
+        console.log('Consulta ejecutada:', query); // Debugging
 
-        const result = await pool.request()
-            .input('fechaDesde', sql.Date, fechaDesde)
-            .input('fechaHasta', sql.Date, fechaHasta)
-            .query(query);
+        const request = new sql.Request(pool);
+        request.input('fechaDesde', sql.Date, fechaDesde);
+        request.input('fechaHasta', sql.Date, fechaHasta);
 
-        context.res = {
-            status: 200,
-            body: result.recordset
-        };
-
+        const result = await request.query(query);
+        console.log('Reportes obtenidos:', result.recordset); // Debugging
+        res.json(result.recordset);
     } catch (error) {
-        console.error('Error filtering reports:', error.message);
-        context.res = {
-            status: 500,
-            body: { message: 'Error retrieving reports.' }
-        };
+        console.error('Error al filtrar reportes:', error); // Debugging
+        res.status(500).send('Error al obtener los reportes');
     }
+});
+
+// Iniciar el servidor
+app.listen(PORT, () => {
+    console.log(`Servidor iniciado en el puerto ${PORT}`);
 });
