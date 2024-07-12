@@ -27,12 +27,6 @@ app.use(session({
 //     credentials: true  // Habilitar el uso de cookies en las solicitudes
 // }));
 
-app.use(cors({
-    origin: 'https://payano15.github.io/web',
-    credentials: true
-}));
-
-
 const allowedOrigin = 'https://payano15.github.io/web';
 app.use(cors({
     origin: allowedOrigin,
