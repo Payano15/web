@@ -84,10 +84,10 @@
                 <label for="comment">Comentario</label>
                 <textarea id="comment" name="comment"></textarea>
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="imageUpload">Imagen</label>
                 <input type="file" id="imageUpload" name="imageUpload" accept="image/*">
-            </div>
+            </div> -->
             <h2>Seleccione grado de basura</h2>
             <div class="radio-group">
                 <label>
@@ -204,7 +204,7 @@
             document.getElementById('longitude').value = '';
             document.getElementById('latitude').value = '';
             document.getElementById('comment').value = '';
-            document.getElementById('imageUpload').value = ''; // Limpiar el campo de imagen
+            //document.getElementById('imageUpload').value = ''; // Limpiar el campo de imagen
             document.getElementById('province').value = ''; // Limpiar el campo de provincia
             document.querySelector('input[name="enubasu"]:checked').checked = false; // Limpiar selección de radio buttons
         }
