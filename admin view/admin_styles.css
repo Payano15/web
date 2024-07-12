@@ -1,0 +1,81 @@
+#map {
+    height: 600px;  /* Altura del mapa */
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+#menu-toggle {
+    color: #fff;
+    background-color: #00CED1;
+}
+
+#menu-toggle:hover {
+    color: #00CED1;
+    background-color: #fff;
+    transition: font-size 0.3s;
+    font-size: 18px;
+}
+
+#wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+#sidebar-wrapper {
+    min-height: 100vh;
+    margin-left: -15rem;
+    transition: margin 0.25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+    padding: 0.875rem 1.25rem;
+    font-size: 1.2rem;
+    background-color: #00CED1;
+    color: #fff;
+}
+
+#sidebar-wrapper .list-group {
+    width: 15rem;
+}
+
+#page-content-wrapper {
+    width: 100%;
+    padding: 20px;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: 0;
+}
+
+.navbar {
+    background-color: #FFFAF0;
+}
+
+.nav-link {
+    color: #00CED1 !important;
+}
+
+.nav-link:hover {
+    color: #FFFAF0 !important;
+    background-color: #00CED1 !important;
+}
+
+.dropdown-menu {
+    background-color: #FFFAF0;
+    border: none;
+}
+
+.dropdown-item {
+    color: #00CED1 !important;
+}
+
+.dropdown-item:hover {
+    color: #FFFAF0 !important;
+    background-color: #00CED1 !important;
+}
