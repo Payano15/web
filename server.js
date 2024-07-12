@@ -22,8 +22,13 @@ app.use(session({
 }));
 
 // Configuración de CORS para permitir solicitudes desde un origen específico
+// app.use(cors({
+//     origin: 'https://payano15.github.io',
+//     credentials: true  // Habilitar el uso de cookies en las solicitudes
+// }));
+
 app.use(cors({
-    origin: 'https://payano15.github.io',
+    origin: '*',
     credentials: true  // Habilitar el uso de cookies en las solicitudes
 }));
 
@@ -157,14 +162,9 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error en el inicio de sesión.', error: error.message });
     }
 });
-
 // Ruta para manejar la subida de reportes
 app.post('/reporte', upload.single('imageUpload'), async (req, res) => {
-    const { longitude, latitude, comment, enubasu, province } = req.body;
-
-    if (!longitude || !latitude || !comment || !enubasu || !province || !req.file) {
-        return res.status(400).json({ message: 'Por favor, complete todos los campos y suba una imagen.' });
-    }
+    const { longitude, latitude, comment, enubasu, province } = req.body; // Incluyendo 'province'
 
     try {
         const pool = await connectToDatabase();
@@ -189,16 +189,16 @@ app.post('/reporte', upload.single('imageUpload'), async (req, res) => {
         request.input('longitude', sql.VarChar(150), longitude);
         request.input('latitude', sql.VarChar(150), latitude);
         request.input('comment', sql.NVarChar, comment);
-        request.input('imagePath', sql.NVarChar, req.file.path);
+        request.input('ImagePath', sql.NVarChar, 'Null');
         request.input('fecha_reporte', sql.DateTime, new Date());
         request.input('estatus', sql.VarChar(50), 'ACT');
         request.input('pais', sql.VarChar(50), 'Republica Dominicana');
         request.input('enubasu', sql.VarChar(10), enubasu);
-        request.input('provincia', sql.VarChar(100), province);
+        request.input('provincia', sql.VarChar(100), province); // Agregando 'province'
 
         const result = await request.query(`
             INSERT INTO reporte_usuarios (idusuarios, longitud, latitud, Comment, ImagePath, fecha_reporte, estatus, pais, enubasu, provincia)
-            VALUES (@idUsuario, @longitude,  @latitude, @comment, @imagePath, @fecha_reporte, @estatus, @pais, @enubasu, @provincia)
+            VALUES (@idUsuario, @longitude,  @latitude, @comment, @ImagePath, @fecha_reporte, @estatus, @pais, @enubasu, @provincia)
         `);
 
         res.json({ message: 'Reporte guardado con éxito' });
