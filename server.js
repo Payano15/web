@@ -1,5 +1,4 @@
 const { AzureFunction, Context, HttpRequest } = require('@azure/functions');
-
 const sql = require('mssql');
 const dotenv = require('dotenv');
 
@@ -8,11 +7,13 @@ dotenv.config();
 const config = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
+    
+    
     server: process.env.DB_SERVER,
     database: process.env.DB_DATABASE,
     options: {
         encrypt: true,
-        enableArithAbort: true
+        enableArithAbort: true  // Corrección del error de tipeo
     }
 };
 
@@ -52,7 +53,9 @@ module.exports.register = AzureFunction.HttpTrigger(corsHandler, {
     if (!nombre || !apellido || !direccion || !email || !clave) {
         context.res = {
             status: 400,
-            body: { message: 'Por favor, complete todos los campos.' }
+            
+      
+body: { message: 'Por favor, complete todos los campos.' }
         };
         return;
     }
@@ -67,7 +70,9 @@ module.exports.register = AzureFunction.HttpTrigger(corsHandler, {
         `;
 
         const request = pool.request();
-        request.input('nombre', sql.VarChar(255), nombre);
+        request.
+  
+input('nombre', sql.VarChar(255), nombre);
         request.input('apellido', sql.VarChar(255), apellido);
         request.input('direccion', sql.VarChar(255), direccion);
         request.input('correo', sql.VarChar(255), email);
@@ -139,14 +144,18 @@ module.exports.login = AzureFunction.HttpTrigger(corsHandler, {
             VALUES (@idUsuario, @codigo, @clave);
         `;
         const insertLogRequest = pool.request();
-        insertLogRequest.input('idUsuario', sql.Int, idUsuario);
+        insertLogRequest.
+        insertLog
+        input('idUsuario', sql.Int, idUsuario);
         insertLogRequest.input('codigo', sql.VarChar, codigo);
         insertLogRequest.input('clave', sql.VarChar, clave);
         await insertLogRequest.query(insertLogQuery);
 
         context.res = {
             status: 200,
-            body: { success: true, userId: idUsuario }
+            
+    
+body: { success: true, userId: idUsuario }
         };
 
     } catch (error) {
@@ -180,6 +189,7 @@ module.exports.reporte = AzureFunction.HttpTrigger(corsHandler, {
 
         if (lastUserIdResult.recordset.length === 0) {
             context.res = {
+                
                 status: 404,
                 body: { success: false, message: 'No hay usuarios registrados en el log temporal.' }
             };
@@ -191,7 +201,9 @@ module.exports.reporte = AzureFunction.HttpTrigger(corsHandler, {
         const request = pool.request();
         request.input('idUsuario', sql.Int, idUsuario);
         request.input('longitude', sql.VarChar(150), longitude);
-        request.input('latitude', sql.VarChar(150), latitude);
+        request.
+ 
+input('latitude', sql.VarChar(150), latitude);
         request.input('comment', sql.NVarChar, comment);
         request.input('ImagePath', sql.NVarChar, 'Null');
         request.input('fecha_reporte', sql.DateTime, new Date());
@@ -202,7 +214,7 @@ module.exports.reporte = AzureFunction.HttpTrigger(corsHandler, {
 
         await request.query(`
             INSERT INTO reporte_usuarios (idusuarios, longitud, latitud, Comment, ImagePath, fecha_reporte, estatus, pais, enubasu, provincia)
-            VALUES (@idUsuario, @longitude,  @latitude, @comment, @ImagePath, @fecha_reporte, @estatus, @pais, @enubasu, @provincia)
+            VALUES (@idUsuario, @longitude, @latitude, @comment, @ImagePath, @fecha_reporte, @estatus, @pais, @enubasu, @provincia)
         `);
 
         context.res = {
@@ -211,7 +223,9 @@ module.exports.reporte = AzureFunction.HttpTrigger(corsHandler, {
         };
 
     } catch (error) {
-        console.error('Error al guardar el reporte:', error.message);
+        
+        conso
+console.error('Error al guardar el reporte:', error.message);
         context.res = {
             status: 500,
             body: { message: 'Error al guardar el reporte' }
