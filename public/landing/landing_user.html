@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eco RD</title>
+  <link rel="stylesheet" href="../landing/landing_styles/landing_user_style.css">
+  <link rel="icon" href="../landing/imagenes/hojas-de-coca.png" type="image/x-icon">
+  <!-- Link para dar estilos con Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <!-- Link para Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body style="background-image: url(../landing/imagenes/detail-green-leaf.jpg);">
+  <div class="nav-container">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary ">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="../landing/landing_user.html">Eco RD</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+          aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul class="navbar-nav ms-5">
+            <!-- <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Inicio</a>
+              </li> -->
+            <li class="nav-item">
+              <a class="nav-link" href="../landing/nosotros_user.html">Nosotros</a>
+            </li>
+            <!-- <li class="nav-item">
+                <a class="nav-link" href="#">Suscripción</a>
+              </li> -->
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Servicios
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="../reporte/frm_reporte_neu.html">Reportar</a></li>
+                <li><a class="dropdown-item" href="../reporte/frm_mis_reportes_neu.html">Mis reportes</a></li>
+                <!-- <li><a class="dropdown-item" href="#">Something else here</a></li> -->
+              </ul>
+            </li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                <i class="fas fa-user"></i>
+                <!-- configuracion de perfil -->
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="../perfil/frm_perfil.html">Perfil</a></li>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <ul>
+                    <li><a class="dropdown-item" href="#">Reportes</a></li>
+                    <li><a class="dropdown-item" href="#">Usuarios</a></li>
+                  </ul>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li><a class="dropdown-item" href="../login/frm_login_nue.html">Cerrar Sesión</a></li>
+          </ul>
+          </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </div>
+  <!-- Sección principal de la página -->
+  <main>
+
+    <section>
+      <!-- Carrusel -->
+      <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000"
+        style="height: 500px; width: 100%;">
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active"
+            aria-current="true" aria-label="Slide 1"></button>
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1"
+            aria-label="Slide 2"></button>
+          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2"
+            aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner">
+          <div class="carousel-item active">
+            <img src="../landing/imagenes/persona-parada-junto-a-una-camioneta-d51c4930.jpeg" class="d-block w-100" alt="..."
+              style="height: 500px; object-fit: cover;">
+            <div class="carousel-caption d-none d-md-block">
+              <h5>Reporta cúmulo de basura.</h5>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <img src="../landing/imagenes/FDDnnq_WYAIbWVr.jpeg" class="d-block w-100" alt="..."
+              style="height: 500px; object-fit: cover;">
+            <div class="carousel-caption d-none d-md-block">
+              <h5>Nos ponemos en contacto con el Ayuntamiento</h5>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <img src="../landing/imagenes/WhatsApp-Image-2022-01-16-at-1.52.10-PM.webp" class="d-block w-100" alt="..."
+              style="height: 500px; object-fit: cover;">
+            <div class="carousel-caption d-none d-md-block">
+              <h5>En cuestión de horas los desechos serán recogidos</h5>
+            </div>
+          </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions"
+          data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions"
+          data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Sección Acerca de -->
+    <section id="about" class="py-5">
+      <div class="container">
+        <h2 class="text-center mb-4">Acerca de Eco RD</h2>
+        <p class="lead">En Eco RD, estamos comprometidos con la sostenibilidad y el medio ambiente. Nuestro objetivo es
+          reducir el impacto ambiental mediante la recolección y el reciclaje eficiente de residuos. Ofrecemos servicios
+          de notificación de recolección y suscripciones para que nuestros usuarios puedan contribuir activamente a un
+          planeta más limpio.</p>
+        <p>Nuestro equipo está formado por profesionales dedicados y apasionados por la ecología y la gestión de
+          residuos. Creemos en la importancia de la colaboración y la educación para fomentar prácticas sostenibles en
+          nuestras comunidades.</p>
+        <p>Únete a nosotros en nuestra misión de crear un futuro más verde y saludable. Con Eco RD, cada acción cuenta.
+        </p>
+      </div>
+    </section>
+
+
+    <div class="card-container">
+
+      <div class="card" style="width: 18rem;">
+        <img src="./imagenes/reducir-reutilizar-reciclar-icono_24640-19764.avif" class="card-img-top" alt="reducir">
+        <div class="card-body">
+          <h5 class="card-title">REDUCE</h5>
+          <p class="card-text">Colaboramos a reducir la cantidad de materiales destinados a un uso único mediante el
+            aprovechamiento de botellas y plasticos para su vuelta al ciclo industrial.</p>
+
+        </div>
+      </div>
+
+      <div class="card" style="width: 18rem;">
+        <img src="./imagenes/4643281.png" class="card-img-top" alt="reutilizar">
+        <div class="card-body">
+          <h5 class="card-title">REUSA</h5>
+          <p class="card-text">Es un acto de responsabilidad y conciencia hacia nuestro entorno. Al darle una segunda
+            vida a los objetos, extendemos su utilidad y reducimos la necesidad de consumir nuevos recursos. </p>
+
+        </div>
+      </div>
+
+      <div class="card" style="width: 18rem;">
+        <img src="./imagenes/feliz-mujer-hombre-reciclando-basura_23-2148512099.avif" class="card-img-top"
+          alt="reciclar">
+        <div class="card-body">
+          <h5 class="card-title">RECICLA</h5>
+          <p class="card-text">El reciclaje es una de las acciones más importantes que podemos llevar a cabo para
+            proteger nuestro medio ambiente.</p>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- Contenido de tu página -->
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h3>Enlaces</h3>
+          <ul>
+            <li><a href="#">Inicio</a></li>
+            <li><a href="#about">Acerca de</a></li>
+            <li><a href="#col">Contacto</a></li>
+          </ul>
+        </div>
+        <div class="col">
+          <h3>Contacto</h3>
+          <p>Dirección: Calle 123, Ciudad</p>
+          <p>Teléfono: +123456789</p>
+          <p>Email: ejemplo@correo.com</p>
+        </div>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2024 CogeDon. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

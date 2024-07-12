@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Eco RD</title>
+    <link rel="stylesheet" href="../styles/style_mis_reportes_neu.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="../landing/imagenes/reporte-de-negocios.png" type="image/x-icon">
+</head>
+<body style="background-color: #FFFAF0;">
+
+    <div class="nav-container"> 
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg bg-body-tertiary ms-3">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="../landing/landing_user.html">ECO RD</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav ms-5">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../landing/nosotros_user.html">Nosotros</a>
+                  </li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Servicios
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="../reporte/frm_reporte_neu.html">Reportar</a></li>
+                      <li><a class="dropdown-item" href="../reporte/frm_mis_reportes_neu.html">Mis reportes</a></li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="fas fa-user"></i> 
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li><a class="dropdown-item" href="#">Perfil</a></li>
+                      <li><a class="dropdown-item" href="#">Configuración</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="../login/frm_login_nue.html">Cerrar Sesión</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+    </div>
+
+    <!-- Contenido de la página -->
+    <main>
+        <section class="container mt-5">
+            <h2>Filtrar Reportes</h2>
+            <form id="filtroForm" class="row g-3">
+                <div class="col-md-6">
+                    <label for="fechaDesde" class="form-label">Desde</label>
+                    <input type="date" class="form-control" id="fechaDesde">
+                </div>
+                <div class="col-md-6">
+                    <label for="fechaHasta" class="form-label">Hasta</label>
+                    <input type="date" class="form-control" id="fechaHasta">
+                </div>
+                <div class="col-md-12 mt-3">
+                  <button type="button" id="generarBtn" class="btn btn-primary">Generar</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="container mt-5">
+            <h2>Reportes</h2>
+            <div class="row mt-3">
+                <div class="col">
+                    <label for="numeroReporte">Número de Reporte:</label>
+                </div>
+                <div class="col">
+                    <label for="nombreApellido">Nombre y Apellido:</label>
+                </div>
+                <div class="col">
+                    <label for="estatus">Estatus:</label>
+                </div>
+                <div class="col">
+                    <label for="direccion">Dirección:</label>
+                </div>
+                <div class="col">
+                    <label for="fechaReporte">Fecha de Reporte:</label>
+                </div>
+                <div class="col">
+                    <label for="comentario">Comentario:</label>
+                </div>
+            </div>
+
+            <!-- Contenedor para mostrar los reportes -->
+            <div class="row mt-3" id="reportesContainer">
+                <!-- Aquí se añadirán dinámicamente los reportes -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="fixed-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="#">Inicio</a></li>
+                        <li><a href="#">Acerca de</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3>Contacto</h3>
+                    <p>Dirección: Calle 123, Ciudad</p>
+                    <p>Teléfono: +123456789</p>
+                    <p>Email: ejemplo@correo.com</p>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2024 Mi Página Web. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+      // Obtener fecha actual y configurar valores para los campos de fecha
+      const today = new Date();
+      const year = today.getFullYear();
+      let month = today.getMonth() + 1;
+      if (month < 10) {
+          month = '0' + month; // Agregar 0 delante si el mes es menor a 10 (para formato de fecha)
+      }
+      let day = today.getDate();
+      if (day < 10) {
+          day = '0' + day; // Agregar 0 delante si el día es menor a 10
+      }
+      const firstDayOfMonth = `${year}-${month}-01`;
+      const lastDayOfMonth = `${year}-${month}-${day}`;
+  
+      // Asignar valores a los campos de fecha
+      document.getElementById('fechaDesde').value = firstDayOfMonth;
+      document.getElementById('fechaHasta').value = lastDayOfMonth;
+
+      // Manejar el clic del botón Generar
+      document.getElementById('generarBtn').addEventListener('click', async () => {
+          const fechaDesde = document.getElementById('fechaDesde').value;
+          const fechaHasta = document.getElementById('fechaHasta').value;
+
+          console.log('Generar botón clickeado'); // Debugging
+          console.log('Fecha Desde:', fechaDesde); // Debugging
+          console.log('Fecha Hasta:', fechaHasta); // Debugging
+
+          try {
+              const response = await fetch('/filtrados', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ fechaDesde, fechaHasta })
+              });
+
+              console.log('Respuesta del servidor recibida'); // Debugging
+
+              if (!response.ok) {
+                  throw new Error('Error al obtener los reportes');
+              }
+
+              const data = await response.json();
+              console.log('Reportes obtenidos:', data); // Debugging
+
+              // Mostrar los reportes en la pantalla
+              const reportesContainer = document.getElementById('reportesContainer');
+              reportesContainer.innerHTML = ''; // Limpiar contenido existente
+
+              data.forEach(report => {
+                  const reporteDiv = document.createElement('div');
+                  reporteDiv.classList.add('row', 'mb-3'); // Agregar clase row y mb-3 para espacio entre filas
+
+                  reporteDiv.innerHTML = `
+                      <div class="col">${report.numeroReporte}</div>
+                      <div class="col">${report.nombreApellido}</div>
+                      <div class="col">${report.estatus}</div>
+                      <div class="col">${report.direccion}</div>
+                      <div class="col">${report.fechaReporte}</div>
+                      <div class="col">${report.comentario}</div>
+                  `;
+                  reportesContainer.appendChild(reporteDiv);
+              });
+
+          } catch (error) {
+              console.error('Error al obtener los reportes:', error.message);
+              // Aquí podrías mostrar un mensaje de error al usuario
+          }
+      });
+  </script>
+</body>
+</html>

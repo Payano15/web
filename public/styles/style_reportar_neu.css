@@ -1,0 +1,211 @@
+/* Estilos generales */
+body {
+    background-image: url(/landing/imagenes/lovepik-clean-city-picture_500785176.jpg);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Estilos del formulario y contenido */
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
+    width: 100%;
+}
+
+.navbar-brand {
+    background: linear-gradient(40deg, rgb(255, 0, 0), rgb(0, 217, 255));
+    font-family: sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+.nav-link {
+    color: black;    
+
+}
+
+.nav-link:hover {
+    color: #00CED1;    
+
+
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group.inline {
+    display: flex;
+    justify-content: space-between;
+}
+
+.form-group.inline div {
+    width: 48%;
+}
+
+label {
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.custom-file-upload {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.custom-file-upload input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    right: 0;
+    top: 0;
+    font-size: 100px;
+    cursor: pointer;
+}
+
+
+
+.custom-file-upload:hover {
+    transition: background-color 0.3s ease;
+}
+
+
+.form-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+/* Estilos del título del formulario */
+form h2 {
+    margin-bottom: 20px;
+    font-size: 15px;
+    color: #333;
+    margin-right: 12px;
+    text-align: center;
+}
+
+/* Estilos del grupo de radio buttons */
+.radio-group {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px; /* Espacio entre cada radio button */
+    justify-content: center; /* Centrar los radio buttons */
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Espacio entre el radio button y el texto */
+    font-size: 16px;
+    color: #555;
+}
+
+/* Estilos del botón de enviar */
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #fff;
+    color: #00CED1;
+}
+
+/* Estilos del pie de página */
+footer {
+    background-color: #00CED1;
+    color: #FFFFFF;
+    padding: 20px 0;
+}
+
+footer .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+footer .col {
+    flex: 1;
+    margin-right: 20px;
+}
+
+footer ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+footer ul li {
+    margin-bottom: 20px;
+}
+
+footer a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #FFFFFF;
+    text-decoration: none;
+    transition: font-size 0.3s;
+    font-size: 24px;
+}
+
+.copyright {
+    text-align: center;
+    margin-top: 10px;
+}

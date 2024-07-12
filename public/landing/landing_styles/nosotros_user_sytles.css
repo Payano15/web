@@ -1,0 +1,84 @@
+/* Estilos CSS para la página */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+
+.navbar-nav {
+    margin-right: 40px;
+}
+.container-fluid img {
+    width: 150px;
+    height: auto;
+    display: block; /* Para asegurar que no tenga espacios adicionales */
+}
+
+.navbar-brand {
+    background: linear-gradient(40deg, rgb(255, 0, 0), rgb(0, 217, 255));
+    font-family: sans-serif;
+    font-size: 40px;
+    font-weight: 400;
+    text-transform: uppercase;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.nav-item a:hover {
+    color: #00CED1;
+}
+
+.navbar-nav .nav-link.btn-custom {
+    background-color: #00CED1; /* Color de fondo normal */
+    color: #FFFAF0; /* Color de texto normal */
+    border: none; /* Sin borde */
+    margin-left: 20px; /* Margen izquierdo */
+    
+}
+
+.navbar-nav .nav-link.btn-custom:hover {
+    background-color: #FFFAF0; /* Color de fondo al pasar el mouse */
+    color: #00CED1; /* Color de texto al pasar el mouse */
+}
+
+.navbar-brand {
+    background: linear-gradient(40deg, rgb(255, 0, 0), rgb(0, 217, 255));
+    font-family: sans-serif;
+    font-size: 40px;
+    font-weight: 400;
+    text-transform: uppercase;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    padding: 20px;
+    background-color: #ffffffac;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    border-radius: 12px;
+}
+
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+p {
+    text-align: justify;
+}
+.about-img {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.about-img img {
+    max-width: 600px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
