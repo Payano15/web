@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="../styles/style_reportar_neu.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="icon" href="../landing/imagenes/reporte-de-negocios.png" type="image/x-icon">
+ 
+    <style>
+        #map {
+            width: 100%; /* Ajuste para ocupar todo el ancho disponible */
+            height: 50vh; /* Altura original del mapa */
+        }
+
+        .container {
+            max-width: 1200px; /* Ancho máximo del contenedor principal */
+            margin: 0 auto; /* Centrar el contenedor en la página */
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            cursor: pointer;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            text-align: center;
+            text-decoration: none; /* Quitar decoración de texto */
+            transition: background-color 0.3s ease; /* Transición de color de fondo */
+            border: none; /* Quitar borde */
+            outline: none; /* Quitar contorno al hacer clic */
+            box-shadow: none; /* Quitar sombra */
+        }
+
+        .custom-file-upload:hover {
+            background-color: #fff;
+            color: #00CED1; /* Cambio de color al pasar el mouse */
+        }
+
+        .custom-file-upload input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-container"> 
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="../landing/landing_user.html">Eco RD</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav ms-5">
+                  <li class="nav-item">
+                    <a class="nav-link" href="../landing/landing_user.html">Nosotros</a>
+                  </li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Servicios
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="./frm_mis_reportes.html">Reportar</a></li>
+                      <li><a class="dropdown-item" href="./frm_mis_reportes_neu.html">Mis Reportes</a></li>
+                      <li><a class="dropdown-item" href="#">Perfil</a></li>
+                      <li><a class="dropdown-item" href="#">Configuracion</a></li>
+                      <li><a class="dropdown-item" href="#">Reportes</a></li>
+                      <li><a class="dropdown-item" href="#">Usuarios</a></li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                  <li class="nav-item">
+                    <a class="nav-link btn btn-custom" href="../login/frm_login.html">Cerrar Sesión</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+    </div>
+
+
+
+    <div class="container">
+        <div id="map"></div>
+        <form id="locationForm" action="/reporte" method="POST" enctype="multipart/form-data">
+            <div class="form-group inline">
+                <div>
+                    <label for="longitude">Longitud</label>
+                    <input type="text" id="longitude" name="longitude" readonly required>
+                </div>
+                <div>
+                    <label for="latitude">Latitud</label>
+                    <input type="text" id="latitude" name="latitude" readonly required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="comment">Comentario</label>
+                <textarea id="comment" name="comment" required></textarea>
+            </div>
+            <div class="form-group">
+                <label class="custom-file-upload">
+                    <input type="file" id="imageUpload" name="imageUpload" onchange="updateFileName(this)" required>
+                    <span id="fileName">Subir Imagen</span>
+                </label>
+                <div class="form-container">
+                    <form id="radioForm">
+                        <h2>Seleccione grado de basura</h2>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="option" value="1">
+                                1
+                            </label>
+                            <label>
+                                <input type="radio" name="option" value="2">
+                                2
+                            </label>
+                            <label>
+                                <input type="radio" name="option" value="3">
+                                3
+                            </label>
+                            <label>
+                                <input type="radio" name="option" value="4">
+                                4
+                            </label>
+                            <label>
+                                <input type="radio" name="option" value="5">
+                                5
+                            </label>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var map = L.map('map').setView([18.7357, -70.1627], 8); // Coordenadas de la República Dominicana
+            var marker = null;
+
+            // Use OpenStreetMap as fallback
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            function onMapClick(e) {
+                var latitude = e.latlng.lat;
+                var longitude = e.latlng.lng;
+
+                // Update the form fields
+                document.getElementById('latitude').value = latitude;
+                document.getElementById('longitude').value = longitude;
+
+                // Remove previous marker if it exists
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+
+                // Add new marker to the map
+                marker = L.marker([latitude, longitude]).addTo(map);
+            }
+
+            map.on('click', onMapClick);
+        });
+
+        function updateFileName(input) {
+            var fileName = input.files[0].name;
+            document.getElementById('fileName').textContent = fileName;
+        }
+    </script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

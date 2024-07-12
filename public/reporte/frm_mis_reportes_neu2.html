@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - Eco RD</title>
+    <link rel="stylesheet" href="../styles/style_mis_reportes_neu.css">
+    <!-- Link para dar estilos con Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Link para Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .reporte-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .reporte-info label {
+            min-width: 140px;
+            font-weight: bold;
+        }
+
+        .reporte-info p {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body style="background-color: #FFFAF0;">
+
+    <div class="nav-container"> 
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg bg-body-tertiary ms-3">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="../landing/landing_user.html">ECO RD</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav ms-5">
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Nosotros</a>
+                  </li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      Servicios
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="../reporte/frm_reporte_neu.html">Reportar</a></li>
+                      <li><a class="dropdown-item" href="../reporte/frm_mis_reportes_neu.html">Mis reportes</a></li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="fas fa-user"></i> 
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li><a class="dropdown-item" href="#">Perfil</a></li>
+                      <li><a class="dropdown-item" href="#">Configuración</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="../login/frm_login_nue.html">Cerrar Sesión</a></li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </nav>
+    </div>
+
+    <!-- Contenido de la página -->
+    <main>
+        <section class="container mt-5">
+            <h2>Filtrar Reportes</h2>
+            <form class="row g-3" id="filterForm">
+                <div class="col-md-6">
+                    <label for="fechaDesde" class="form-label">Desde</label>
+                    <input type="date" class="form-control" id="fechaDesde">
+                </div>
+                <div class="col-md-6">
+                    <label for="fechaHasta" class="form-label">Hasta</label>
+                    <input type="date" class="form-control" id="fechaHasta">
+                </div>
+                <div class="col-12 mt-3">
+                    <button type="button" class="btn btn-primary" onclick="cargarReportes()">Filtrar Reportes</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="container mt-5">
+          <h2>Reportes</h2>
+          <!-- Dinámico: aquí se mostrarán los reportes -->
+          <div class="row mt-3" id="reportesContainer">
+              <div class="col-md-6">
+                  <div class="row">
+                      <div class="col">
+                          <div class="reporte-info">
+                              <label>Número de Reporte:</label>
+                              <p id="numeroReporte"></p>
+                          </div>
+                          <div class="reporte-info">
+                              <label>Nombre y Apellido:</label>
+                              <p id="nombreApellido"></p>
+                          </div>
+                          <div class="reporte-info">
+                              <label>Dirección:</label>
+                              <p id="direccion"></p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-6">
+                  <div class="row">
+                      <div class="col">
+                          <div class="reporte-info">
+                              <label>Estatus:</label>
+                              <p id="estatus"></p>
+                          </div>
+                          <div class="reporte-info">
+                              <label>Fecha de Reporte:</label>
+                              <p id="fechaReporte"></p>
+                          </div>
+                          <div class="reporte-info">
+                              <label>Comentario:</label>
+                              <p id="comentario"></p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-12 mt-3">
+                  <button id="mostrarImagenBtn" class="btn btn-primary" style="display: none;">Mostrar Imagen</button>
+              </div>
+          </div>
+      </section>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="fixed-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="../landing/landing_user.html">Inicio</a></li>
+                        <li><a href="#">Acerca de</a></li>
+                        <li><a href="#">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="col">
+                    <h3>Contacto</h3>
+                    <p>Dirección: Calle 123, Ciudad</p>
+                    <p>Teléfono: +123456789</p>
+                    <p>Email: ejemplo@correo.com</p>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2024 Mi Página Web. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+   <!-- Scripts -->
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+   <script>
+       // Obtener fecha actual y configurar valores para los campos de fecha
+       const today = new Date();
+       const year = today.getFullYear();
+       let month = today.getMonth() + 1;
+       if (month < 10) {
+           month = '0' + month; // Agregar 0 delante si el mes es menor a 10 (para formato de fecha)
+       }
+       let day = today.getDate();
+       if (day < 10) {
+           day = '0' + day; // Agregar 0 delante si el día es menor a 10
+       }
+       const firstDayOfMonth = `${year}-${month}-01`;
+       const lastDayOfMonth = `${year}-${month}-${day}`;
+
+       // Asignar valores a los campos de fecha
+       document.getElementById('fechaDesde').value = firstDayOfMonth;
+       document.getElementById('fechaHasta').value = lastDayOfMonth;
+
+       // Función para cargar reportes según el filtro de fechas
+       async function cargarReportes() {
+           const fechaDesde = document.getElementById('fechaDesde').value;
+           const fechaHasta = document.getElementById('fechaHasta').value;
+
+           try {
+               const response = await fetch('/filtrados', {
+                   method: 'POST',
+                   headers: {
+                       'Content-Type': 'application/json'
+                   },
+                   body: JSON.stringify({ fechaDesde, fechaHasta })
+               });
+
+               if (!response.ok) {
+                   throw new Error('Error al obtener los reportes');
+               }
+
+               const data = await response.json();
+               console.log(data); // Reemplazar por lógica para mostrar en el HTML
+
+               if (data.length > 0) {
+                   const reporte = data[0]; // Asumiendo que se obtiene solo un reporte
+
+                   document.getElementById('numeroReporte').innerText = reporte.numeroReporte;
+                   document.getElementById('nombreApellido').innerText = reporte.nombreApellido;
+                   document.getElementById('direccion').innerText = reporte.direccion;
+                   document.getElementById('estatus').innerText = reporte.estatus;
+                   document.getElementById('fechaReporte').innerText = reporte.fechaReporte;
+                   document.getElementById('comentario').innerText = reporte.comentario;
+
+                   // Mostrar botón para mostrar imagen si hay imagen en el reporte
+                   if (reporte.imagenURL) {
+                       document.getElementById('mostrarImagenBtn').style.display = 'block';
+                   } else {
+                       document.getElementById('mostrarImagenBtn').style.display = 'none';
+                   }
+               } else {
+                   // Limpiar los campos si no hay datos
+                   document.getElementById('numeroReporte').innerText = '';
+                   document.getElementById('nombreApellido').innerText = '';
+                   document.getElementById('direccion').innerText = '';
+                   document.getElementById('estatus').innerText = '';
+                   document.getElementById('fechaReporte').innerText = '';
+                   document.getElementById('comentario').innerText = '';
+                   document.getElementById('mostrarImagenBtn').style.display = 'none';
+               }
+           } catch (error) {
+               console.error('Error al cargar los reportes:', error);
+               // Mostrar mensaje de error al usuario
+           }
+       }
+   </script>
+</body>
+</html>

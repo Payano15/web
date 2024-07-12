@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registro</title>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../styles/styles_registro_nue.css"
+    />
+    <!-- Agrega estilos para el modal -->
+    <link rel="stylesheet" type="text/css" href="../styles/modal.css" />
+    <style>
+      /* Agregar estilos para resaltar los campos con error */
+      .error {
+        border: 1px solid red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="register-container">
+      <form class="register-form" id="registroForm">
+        <h2>Registrarse</h2>
+        <div class="input-group">
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" name="nombre" required />
+        </div>
+        <div class="input-group">
+          <label for="apellido">Apellido</label>
+          <input type="text" id="apellido" name="apellido" required />
+        </div>
+        <div class="input-group">
+          <label for="direccion">Dirección</label>
+          <input type="text" id="direccion" name="direccion" required />
+        </div>
+        <div class="input-group">
+          <label for="email">Correo Electrónico</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="input-group">
+          <label for="clave">Clave</label>
+          <input type="password" id="clave" name="clave" required />
+        </div>
+        <button type="submit">Registrarse</button>
+        <div class="extra-options">
+          <a href="../login/frm_login_nue.html" id="Iniciar Sesión-link">Iniciar Sesión</a>
+      </div>
+      </form>
+    </div>
+
+    <!-- Modal para mostrar mensajes -->
+    <div id="myModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="modalMessage"></p>
+      </div>
+    </div>
+
+    <script>
+      // Función para mostrar el modal con un mensaje
+      function showModal(message) {
+        var modal = document.getElementById("myModal");
+        var modalMessage = document.getElementById("modalMessage");
+        modalMessage.innerHTML = message;
+        modal.style.display = "block";
+
+        // Cierra el modal cuando se hace clic en la 'X'
+        var closeBtn = document.getElementsByClassName("close")[0];
+        closeBtn.onclick = function () {
+          modal.style.display = "none";
+          limpiarCampos(); // Limpia los campos al cerrar el modal
+        };
+
+        // Cierra el modal cuando se hace clic fuera de él
+        window.onclick = function (event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+            limpiarCampos(); // Limpia los campos al cerrar el modal
+          }
+        };
+      }
+
+      // Función para limpiar los campos del formulario
+      function limpiarCampos() {
+        document.getElementById("nombre").value = "";
+        document.getElementById("apellido").value = "";
+        document.getElementById("direccion").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("clave").value = "";
+      }
+
+      // Capturar el evento submit del formulario
+      document
+        .getElementById("registroForm")
+        .addEventListener("submit", async function (event) {
+          event.preventDefault(); // Evitar que el formulario se envíe de forma predeterminada
+
+          // Capturar los valores de los campos del formulario
+          const nombre = document.getElementById("nombre").value;
+          const apellido = document.getElementById("apellido").value;
+          const direccion = document.getElementById("direccion").value;
+          const email = document.getElementById("email").value;
+          const clave = document.getElementById("clave").value;
+
+          // Verificar si algún campo está vacío
+          if (!nombre || !apellido || !direccion || !email || !clave) {
+            showModal("Por favor, complete todos los campos.");
+            return;
+          }
+
+          // Crear un objeto con los datos del formulario
+          const formData = {
+            nombre: nombre,
+            apellido: apellido,
+            direccion: direccion,
+            email: email,
+            clave: clave,
+          };
+
+          try {
+            const response = await fetch("http://localhost:3000/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            console.log("Estado de la respuesta:", response.status);
+
+            const responseBody = await response.text();
+            console.log("Cuerpo de la respuesta:", responseBody);
+
+            if (response.ok) {
+              const data = JSON.parse(responseBody);
+              console.log("Respuesta del servidor:", data);
+              showModal(data.message);
+              limpiarCampos(); // Limpia los campos si el registro fue exitoso
+            } else {
+              console.error(
+                "Error en la respuesta del servidor:",
+                responseBody
+              );
+              throw new Error(
+                "Error en la solicitud: " +
+                  response.status +
+                  " - " +
+                  responseBody
+              );
+            }
+          } catch (error) {
+            console.error("Error al enviar el formulario:", error);
+            showModal("Registro exitoso.");
+            
+          }
+        });
+    </script>
+  </body>
+</html>
