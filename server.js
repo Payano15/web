@@ -20,6 +20,14 @@ app.use(session({
     cookie: { secure: false } // Cambiar a true si usas HTTPS
 }));
 
+
+
+// Configurar CORS en tu API en Azure
+app.use(cors({
+  origin: 'https://payano15.github.io',
+  optionsSuccessStatus: 200 // Algunos navegadores antiguos (IE11) necesitan esto
+}));
+
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
