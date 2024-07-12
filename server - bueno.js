@@ -6,7 +6,6 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 const session = require('express-session');
-const fs = require('fs');
 
 dotenv.config();
 
@@ -25,16 +24,10 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// Verificar si el directorio de subida de archivos existe, si no, crearlo
-const uploadDir = 'uploads/';
-if (!fs.existsSync(uploadDir)){
-    fs.mkdirSync(uploadDir);
-}
-
 // Configuración de Multer para la subida de archivos
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, uploadDir); // Directorio de subida de archivos
+        cb(null, 'uploads/'); // Directorio de subida de archivos
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname)); // Renombrar archivo para evitar duplicados
@@ -81,14 +74,14 @@ app.post('/register', async (req, res) => {
         const insertQuery = `
             INSERT INTO registro_usuarios (nombre, apellido, direccion, email, clave)
             OUTPUT INSERTED.id
-            VALUES (@nombre, @apellido, @direccion, @correo, @clave);
+            VALUES (@nombre, @apellido, @direccion, @email, @clave);
         `;
 
         const request = new sql.Request(pool);
         request.input('nombre', sql.VarChar(255), nombre);
         request.input('apellido', sql.VarChar(255), apellido);
         request.input('direccion', sql.VarChar(255), direccion);
-        request.input('correo', sql.VarChar(255), email);
+        request.input('email', sql.VarChar(255), email);
         request.input('clave', sql.VarChar(255), clave);
 
         const insertResult = await request.query(insertQuery);
@@ -143,7 +136,6 @@ app.post('/login', async (req, res) => {
         insertLogRequest.input('clave', sql.VarChar, clave);
         await insertLogRequest.query(insertLogQuery);
 
-        req.session.userId = idUsuario; // Guardar el usuario en la sesión
         res.status(200).json({ success: true, userId: idUsuario });
 
     } catch (error) {
@@ -154,11 +146,7 @@ app.post('/login', async (req, res) => {
 
 // Ruta para manejar la subida de reportes
 app.post('/reporte', upload.single('imageUpload'), async (req, res) => {
-    const { longitude, latitude, comment, enubasu, province } = req.body;
-
-    if (!longitude || !latitude || !comment || !enubasu || !province || !req.file) {
-        return res.status(400).json({ message: 'Por favor, complete todos los campos y suba una imagen.' });
-    }
+    const { longitude, latitude, comment, enubasu, province } = req.body; // Incluyendo 'province'
 
     try {
         const pool = await connectToDatabase();
@@ -188,7 +176,7 @@ app.post('/reporte', upload.single('imageUpload'), async (req, res) => {
         request.input('estatus', sql.VarChar(50), 'ACT');
         request.input('pais', sql.VarChar(50), 'Republica Dominicana');
         request.input('enubasu', sql.VarChar(10), enubasu);
-        request.input('provincia', sql.VarChar(100), province);
+        request.input('provincia', sql.VarChar(100), province); // Agregando 'province'
 
         const result = await request.query(`
             INSERT INTO reporte_usuarios (idusuarios, longitud, latitud, Comment, ImagePath, fecha_reporte, estatus, pais, enubasu, provincia)
@@ -238,17 +226,7 @@ app.post('/filtrados', async (req, res) => {
     }
 });
 
-// Iniciar el servidor automáticamente al ejecutar este archivo con Node.js
-async function startServer() {
-    try {
-        await connectToDatabase(); // Conectar a la base de datos al inicio
-        app.listen(PORT, () => {
-            console.log(`Servidor iniciado en el puerto ${PORT}`);
-        });
-    } catch (error) {
-        console.error('Error al iniciar el servidor:', error.message);
-    }
-}
-
-// Llamar a la función para iniciar el servidor automáticamente
-startServer();
+// Iniciar el servidor
+app.listen(PORT, () => {
+    console.log(`Servidor iniciado en el puerto ${PORT}`);
+});
