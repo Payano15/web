@@ -28,8 +28,15 @@ app.use(session({
 // }));
 
 app.use(cors({
-    origin: '*',
-    credentials: true  // Habilitar el uso de cookies en las solicitudes
+    origin: 'https://payano15.github.io/web',
+    credentials: true
+}));
+
+
+const allowedOrigin = 'https://payano15.github.io/web';
+app.use(cors({
+    origin: allowedOrigin,
+    credentials: true
 }));
 
 // Configuración de bodyParser para analizar cuerpos de solicitud
