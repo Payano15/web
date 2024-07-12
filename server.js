@@ -34,7 +34,7 @@ const corsHandler = async function (context, req) {
     context.res = {
         status: 200,
         headers: {
-            'Access-Control-Allow-Origin': 'https://payano15.github.io',
+            'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'OPTIONS, GET, POST, PUT, DELETE',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization'
         }
