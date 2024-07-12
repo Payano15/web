@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const sql = require('mssql');
 const dotenv = require('dotenv');
-const cors = require('cors');
+const cors = require('cors'); // Importa el middleware cors
 const multer = require('multer');
 const path = require('path');
 const session = require('express-session');
@@ -21,8 +21,11 @@ app.use(session({
     cookie: { secure: false } // Cambiar a true si usas HTTPS
 }));
 
-// Configuración de CORS
-app.use(cors());
+// Configuración de CORS para permitir solicitudes desde un origen específico
+app.use(cors({
+    origin: 'https://payano15.github.io',
+    credentials: true  // Habilitar el uso de cookies en las solicitudes
+}));
 
 // Configuración de bodyParser para analizar cuerpos de solicitud
 app.use(bodyParser.urlencoded({ extended: true }));
