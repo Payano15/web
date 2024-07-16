@@ -112,7 +112,15 @@ app.post('/register', async (req, res) => {
         const insertResult = await request.query(insertQuery);
         const lastInsertedId = insertResult.recordset[0].id;
 
-        res.status(201).json({ message: 'Usuario registrado correctamente.', userId: lastInsertedId });
+        // Ejecutar el procedimiento almacenado con el ID recién insertado
+        const procedureRequest = new sql.Request();
+        procedureRequest.input('idusuarios', sql.Int, lastInsertedId);
+
+        const procedureResult = await procedureRequest.execute('usp_create_usuarios');
+        console.log(procedureResult);
+
+        res.status(201).json({ message: 'Usuario registrado y procedimiento ejecutado correctamente.' });
+
 
     } catch (error) {
         console.error('Error al registrar usuario:', error.message);
