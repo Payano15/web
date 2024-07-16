@@ -72,20 +72,24 @@ async function connectToDatabase() {
 app.post('/register', async (req, res) => {
     const { nombre, apellido, direccion, email, clave } = req.body;
 
+    console.log('Datos recibidos del formulario de registro:', { nombre, apellido, direccion, email, clave });
+
     if (!nombre || !apellido || !direccion || !email || !clave) {
         return res.status(400).json({ message: 'Por favor, complete todos los campos.' });
     }
 
     try {
-        const pool = await connectToDatabase();
+        // Conectar a la base de datos
+        await connectToDatabase();
 
+        // Insertar usuario en la base de datos
         const insertQuery = `
-            INSERT INTO registro_usuarios (nombre, apellido, direccion, email, clave)
+            INSERT INTO resgitro_usuarios (nombre, apellido, direccion, email, clave)
             OUTPUT INSERTED.id
             VALUES (@nombre, @apellido, @direccion, @email, @clave);
         `;
 
-        const request = new sql.Request(pool);
+        const request = new sql.Request();
         request.input('nombre', sql.VarChar(255), nombre);
         request.input('apellido', sql.VarChar(255), apellido);
         request.input('direccion', sql.VarChar(255), direccion);
@@ -93,13 +97,23 @@ app.post('/register', async (req, res) => {
         request.input('clave', sql.VarChar(255), clave);
 
         const insertResult = await request.query(insertQuery);
+
         const lastInsertedId = insertResult.recordset[0].id;
 
-        res.status(201).json({ message: 'Usuario registrado correctamente.', userId: lastInsertedId });
+        // Ejecutar el procedimiento almacenado con el ID recién insertado
+        const procedureRequest = new sql.Request();
+        procedureRequest.input('idusuarios', sql.Int, lastInsertedId);
+
+        const procedureResult = await procedureRequest.execute('usp_create_usuarios');
+        console.log(procedureResult);
+
+        res.status(201).json({ message: 'Usuario registrado y procedimiento ejecutado correctamente.' });
 
     } catch (error) {
-        console.error('Error al registrar usuario:', error.message);
+        console.error('Error al registrar usuario:', error);
         res.status(500).json({ message: 'Error en el registro.', error: error.message });
+    } finally {
+        await sql.close();
     }
 });
 
@@ -179,7 +193,7 @@ app.post('/reporte', upload.single('imageUpload'), async (req, res) => {
         request.input('longitude', sql.VarChar(150), longitude);
         request.input('latitude', sql.VarChar(150), latitude);
         request.input('comment', sql.NVarChar, comment);
-        request.input('imagePath', sql.NVarChar, req.file.path);
+        request.input('imagePath', sql.NVarChar, 'null');
         request.input('fecha_reporte', sql.DateTime, new Date());
         request.input('estatus', sql.VarChar(50), 'ACT');
         request.input('pais', sql.VarChar(50), 'Republica Dominicana');
