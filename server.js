@@ -24,7 +24,7 @@ app.use(session({
 
 // Configurar CORS en tu API en Azure
 app.use(cors({
-  origin: 'https://payano15.github.io',
+  origin: '*',
   optionsSuccessStatus: 200 // Algunos navegadores antiguos (IE11) necesitan esto
 }));
 
