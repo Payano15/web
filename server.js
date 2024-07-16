@@ -20,15 +20,15 @@ app.use(session({
     cookie: { secure: false } // Cambiar a true si usas HTTPS
 }));
 
+const corsOptions = {
+    origin: 'https://payano15.github.io',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 
-
-// Configurar CORS en tu API en Azure
-app.use(cors({
-  origin: '*',
-  optionsSuccessStatus: 200 // Algunos navegadores antiguos (IE11) necesitan esto
-}));
-
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -68,7 +68,6 @@ async function connectToDatabase() {
     }
 }
 
-
 // Registro de usuarios
 app.post('/register', async (req, res) => {
     const { nombre, apellido, direccion, email, clave } = req.body;
@@ -96,16 +95,12 @@ app.post('/register', async (req, res) => {
         const insertResult = await request.query(insertQuery);
         const lastInsertedId = insertResult.recordset[0].id;
 
-        // Ejecutar el procedimiento almacenado con el ID recién insertado
-        const procedureRequest = new sql.Request();
+        const procedureRequest = new sql.Request(pool);
         procedureRequest.input('idusuarios', sql.Int, lastInsertedId);
 
-        const procedureResult = await procedureRequest.execute('usp_create_usuarios');
-        console.log(procedureResult);
+        await procedureRequest.execute('usp_create_usuarios');
 
         res.status(201).json({ message: 'Usuario registrado y procedimiento ejecutado correctamente.' });
-
-
     } catch (error) {
         console.error('Error al registrar usuario:', error.message);
         res.status(500).json({ message: 'Error en el registro.', error: error.message });
@@ -135,7 +130,7 @@ app.post('/login', async (req, res) => {
         request.input('clave', sql.VarChar, clave);
 
         const result = await request.query(query);
-        
+
         if (result.recordset.length === 0) {
             return res.status(404).json({ success: false, message: 'Código o clave incorrectos.' });
         }
@@ -224,10 +219,10 @@ app.post('/filtrados', async (req, res) => {
                 rp.fecha_reporte AS fechaReporte,
                 rp.Comment AS comentario
             FROM reporte_usuarios rp
-            JOIN resgitro_usuarios ru ON rp.idusuarios = ru.id
+            JOIN registro_usuarios ru ON rp.idusuarios = ru.id
             WHERE rp.fecha_reporte BETWEEN @fechaDesde AND @fechaHasta
         `;
-        
+
         console.log('Consulta ejecutada:', query); // Debugging
 
         const request = new sql.Request(pool);
