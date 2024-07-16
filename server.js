@@ -27,8 +27,6 @@ const corsOptions = {
     optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
-
-app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -68,17 +66,14 @@ async function connectToDatabase() {
     }
 }
 
-app.post('/registrarse', async (req, res) => {
+//registro
+app.post('/register', async (req, res) => {
     const { nombre, apellido, direccion, email, clave } = req.body;
 
     try {
-        // Intentar conectar a la base de datos
-        console.log('Intentando conectar a la base de datos...');
         const pool = await connectToDatabase();
 
-        console.log('Conexión establecida con la base de datos.');
-
-        // Insertar el nuevo usuario en la tabla registro_usuarios
+        // Insertar el nuevo usuario en la tabla registro_usuarios y obtener el ID insertado
         const insertQuery = `
             INSERT INTO resgitro_usuarios (nombre, apellido, direccion, email, clave)
             OUTPUT INSERTED.id
@@ -92,40 +87,20 @@ app.post('/registrarse', async (req, res) => {
         request.input('correo', sql.VarChar(255), email);
         request.input('clave', sql.VarChar(255), clave);
 
-        console.log('Ejecutando consulta de inserción...');
         const insertResult = await request.query(insertQuery);
 
-        if (!insertResult.recordset || insertResult.recordset.length === 0) {
+        // Verificar si se insertó correctamente el usuario
+        if (!insertResult || !insertResult.recordset || insertResult.recordset.length === 0) {
             throw new Error('No se pudo insertar el usuario.');
         }
 
         const lastInsertedId = insertResult.recordset[0].id;
-        console.log(`Usuario registrado con ID: ${lastInsertedId}`);
 
-        // Seleccionar el último ID insertado en resgitro_usuarios
-        const selectIdQuery = `
-            SELECT TOP 1 id
-            FROM resgitro_usuarios
-            ORDER BY id DESC;
-        `;
-        console.log('Ejecutando consulta para seleccionar el último ID...');
-        const selectIdResult = await pool.request().query(selectIdQuery);
-
-        if (!selectIdResult.recordset || selectIdResult.recordset.length === 0) {
-            throw new Error('No se pudo seleccionar el último ID.');
-        }
-
-        const lastUserId = selectIdResult.recordset[0].id;
-        console.log(`Último ID de usuario: ${lastUserId}`);
-
-        // Ejecutar procedimiento almacenado usp_create_usuarios con el último ID
+        // Ejecutar procedimiento almacenado usp_create_usuarios con el último ID insertado
         const procedureRequest = pool.request();
-        procedureRequest.input('idusuarios', sql.Int, lastUserId);
+        procedureRequest.input('idusuarios', sql.Int, lastInsertedId);
 
-        console.log('Ejecutando procedimiento almacenado usp_create_usuarios...');
         await procedureRequest.execute('usp_create_usuarios');
-
-        console.log(`Procedimiento usp_create_usuarios ejecutado para el usuario con ID: ${lastUserId}`);
 
         res.status(201).json({ message: 'Usuario registrado correctamente.' });
     } catch (error) {
@@ -257,15 +232,20 @@ app.post('/filtrados', async (req, res) => {
         request.input('fechaHasta', sql.Date, fechaHasta);
 
         const result = await request.query(query);
-        console.log('Reportes obtenidos:', result.recordset); // Debugging
-        res.json(result.recordset);
+
+        console.log('Resultados obtenidos:', result.recordset); // Debugging
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ success: false, message: 'No se encontraron reportes en el rango de fechas especificado.' });
+        }
+
+        res.status(200).json({ success: true, data: result.recordset });
     } catch (error) {
-        console.error('Error al filtrar reportes:', error); // Debugging
-        res.status(500).send('Error al obtener los reportes');
+        console.error('Error al filtrar reportes:', error.message);
+        res.status(500).json({ success: false, message: 'Error al filtrar reportes.', error: error.message });
     }
 });
 
-// Iniciar el servidor
 app.listen(PORT, () => {
-    console.log(`Servidor iniciado en el puerto ${PORT}`);
+    console.log(`Servidor ejecutándose en el puerto ${PORT}`);
 });
