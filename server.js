@@ -68,45 +68,72 @@ async function connectToDatabase() {
     }
 }
 
-// Registro de usuarios
-app.post('/register', async (req, res) => {
+app.post('/registrarse', async (req, res) => {
     const { nombre, apellido, direccion, email, clave } = req.body;
 
-    if (!nombre || !apellido || !direccion || !email || !clave) {
-        return res.status(400).json({ message: 'Por favor, complete todos los campos.' });
-    }
-
     try {
+        // Intentar conectar a la base de datos
+        console.log('Intentando conectar a la base de datos...');
         const pool = await connectToDatabase();
 
+        console.log('Conexión establecida con la base de datos.');
+
+        // Insertar el nuevo usuario en la tabla registro_usuarios
         const insertQuery = `
-            INSERT INTO registro_usuarios (nombre, apellido, direccion, email, clave)
+            INSERT INTO resgitro_usuarios (nombre, apellido, direccion, email, clave)
             OUTPUT INSERTED.id
             VALUES (@nombre, @apellido, @direccion, @correo, @clave);
         `;
 
-        const request = new sql.Request(pool);
+        const request = pool.request();
         request.input('nombre', sql.VarChar(255), nombre);
         request.input('apellido', sql.VarChar(255), apellido);
         request.input('direccion', sql.VarChar(255), direccion);
         request.input('correo', sql.VarChar(255), email);
         request.input('clave', sql.VarChar(255), clave);
 
+        console.log('Ejecutando consulta de inserción...');
         const insertResult = await request.query(insertQuery);
+
+        if (!insertResult.recordset || insertResult.recordset.length === 0) {
+            throw new Error('No se pudo insertar el usuario.');
+        }
+
         const lastInsertedId = insertResult.recordset[0].id;
+        console.log(`Usuario registrado con ID: ${lastInsertedId}`);
 
-        const procedureRequest = new sql.Request(pool);
-        procedureRequest.input('idusuarios', sql.Int, lastInsertedId);
+        // Seleccionar el último ID insertado en resgitro_usuarios
+        const selectIdQuery = `
+            SELECT TOP 1 id
+            FROM resgitro_usuarios
+            ORDER BY id DESC;
+        `;
+        console.log('Ejecutando consulta para seleccionar el último ID...');
+        const selectIdResult = await pool.request().query(selectIdQuery);
 
+        if (!selectIdResult.recordset || selectIdResult.recordset.length === 0) {
+            throw new Error('No se pudo seleccionar el último ID.');
+        }
+
+        const lastUserId = selectIdResult.recordset[0].id;
+        console.log(`Último ID de usuario: ${lastUserId}`);
+
+        // Ejecutar procedimiento almacenado usp_create_usuarios con el último ID
+        const procedureRequest = pool.request();
+        procedureRequest.input('idusuarios', sql.Int, lastUserId);
+
+        console.log('Ejecutando procedimiento almacenado usp_create_usuarios...');
         await procedureRequest.execute('usp_create_usuarios');
 
-        res.status(201).json({ message: 'Usuario registrado y procedimiento ejecutado correctamente.' });
+        console.log(`Procedimiento usp_create_usuarios ejecutado para el usuario con ID: ${lastUserId}`);
+
+        res.status(201).json({ message: 'Usuario registrado correctamente.' });
     } catch (error) {
         console.error('Error al registrar usuario:', error.message);
         res.status(500).json({ message: 'Error en el registro.', error: error.message });
     }
 });
-
+  
 // Inicio de sesión de usuarios
 app.post('/login', async (req, res) => {
     const { codigo, clave } = req.body;
