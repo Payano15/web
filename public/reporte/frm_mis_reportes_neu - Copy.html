@@ -10,6 +10,7 @@
     <link rel="icon" href="../landing/imagenes/reporte-de-negocios.png" type="image/x-icon">
 </head>
 <body style="background-color: #FFFAF0;">
+
     <div class="nav-container"> 
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg bg-body-tertiary ms-3">
@@ -64,7 +65,9 @@
                     <label for="fechaHasta" class="form-label">Hasta</label>
                     <input type="date" class="form-control" id="fechaHasta">
                 </div>
-                <!-- Eliminado el botón Generar -->
+                <div class="col-md-12 mt-3">
+                  <button type="button" id="generarBtn" class="btn btn-primary">Generar</button>
+                </div>
             </form>
         </section>
 
@@ -126,90 +129,75 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
-        // Obtener fecha actual y configurar valores para los campos de fecha
-        const today = new Date();
-        const year = today.getFullYear();
-        let month = today.getMonth() + 1;
-        if (month < 10) {
-            month = '0' + month; // Agregar 0 delante si el mes es menor a 10 (para formato de fecha)
-        }
-        let day = today.getDate();
-        if (day < 10) {
-            day = '0' + day; // Agregar 0 delante si el día es menor a 10
-        }
-        const firstDayOfMonth = `${year}-${month}-01`;
-        const lastDayOfMonth = `${year}-${month}-${day}`;
-      
-        // Asignar valores a los campos de fecha
-        document.getElementById('fechaDesde').value = firstDayOfMonth;
-        document.getElementById('fechaHasta').value = lastDayOfMonth;
-      
-        // Cargar los reportes automáticamente al cargar la página
-        (async () => {
-    const fechaDesde = document.getElementById('fechaDesde').value;
-    const fechaHasta = document.getElementById('fechaHasta').value;
+      // Obtener fecha actual y configurar valores para los campos de fecha
+      const today = new Date();
+      const year = today.getFullYear();
+      let month = today.getMonth() + 1;
+      if (month < 10) {
+          month = '0' + month; // Agregar 0 delante si el mes es menor a 10 (para formato de fecha)
+      }
+      let day = today.getDate();
+      if (day < 10) {
+          day = '0' + day; // Agregar 0 delante si el día es menor a 10
+      }
+      const firstDayOfMonth = `${year}-${month}-01`;
+      const lastDayOfMonth = `${year}-${month}-${day}`;
+  
+      // Asignar valores a los campos de fecha
+      document.getElementById('fechaDesde').value = firstDayOfMonth;
+      document.getElementById('fechaHasta').value = lastDayOfMonth;
 
-    try {
-        const response = await fetch('http://localhost:3000/filtrados', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ fechaDesde, fechaHasta })
-        });
+      // Manejar el clic del botón Generar
+      document.getElementById('generarBtn').addEventListener('click', async () => {
+          const fechaDesde = document.getElementById('fechaDesde').value;
+          const fechaHasta = document.getElementById('fechaHasta').value;
 
-        if (!response.ok) {
-            throw new Error('Error al obtener los reportes');
-        }
+          console.log('Generar botón clickeado'); // Debugging
+          console.log('Fecha Desde:', fechaDesde); // Debugging
+          console.log('Fecha Hasta:', fechaHasta); // Debugging
 
-        const reportes = await response.json();
+          try {
+              const response = await fetch('/filtrados', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ fechaDesde, fechaHasta })
+              });
 
-        const reportesContainer = document.getElementById('reportesContainer');
-        reportesContainer.innerHTML = '';
+              console.log('Respuesta del servidor recibida'); // Debugging
 
-        reportes.forEach(reporte => {
-            // Crear una nueva fila para cada reporte
-            const row = document.createElement('div');
-            row.classList.add('row', 'mt-2');
+              if (!response.ok) {
+                  throw new Error('Error al obtener los reportes');
+              }
 
-            // Crear las columnas para cada propiedad del reporte
-            const numeroReporteCol = document.createElement('div');
-            numeroReporteCol.classList.add('col');
-            numeroReporteCol.textContent = reporte.numeroReporte;
-            row.appendChild(numeroReporteCol);
+              const data = await response.json();
+              console.log('Reportes obtenidos:', data); // Debugging
 
-            const nombreApellidoCol = document.createElement('div');
-            nombreApellidoCol.classList.add('col');
-            nombreApellidoCol.textContent = reporte.nombreApellido;
-            row.appendChild(nombreApellidoCol);
+              // Mostrar los reportes en la pantalla
+              const reportesContainer = document.getElementById('reportesContainer');
+              reportesContainer.innerHTML = ''; // Limpiar contenido existente
 
-            const estatusCol = document.createElement('div');
-            estatusCol.classList.add('col');
-            estatusCol.textContent = reporte.estatus;
-            row.appendChild(estatusCol);
+              data.forEach(report => {
+                  const reporteDiv = document.createElement('div');
+                  reporteDiv.classList.add('row', 'mb-3'); // Agregar clase row y mb-3 para espacio entre filas
 
-            const direccionCol = document.createElement('div');
-            direccionCol.classList.add('col');
-            direccionCol.textContent = reporte.direccion;
-            row.appendChild(direccionCol);
+                  reporteDiv.innerHTML = `
+                      <div class="col">${report.numeroReporte}</div>
+                      <div class="col">${report.nombreApellido}</div>
+                      <div class="col">${report.estatus}</div>
+                      <div class="col">${report.direccion}</div>
+                      <div class="col">${report.fechaReporte}</div>
+                      <div class="col">${report.comentario}</div>
+                  `;
+                  reportesContainer.appendChild(reporteDiv);
+              });
 
-            const fechaReporteCol = document.createElement('div');
-            fechaReporteCol.classList.add('col');
-            fechaReporteCol.textContent = reporte.fechaReporte;
-            row.appendChild(fechaReporteCol);
-
-            const comentarioCol = document.createElement('div');
-            comentarioCol.classList.add('col');
-            comentarioCol.textContent = reporte.comentario;
-            row.appendChild(comentarioCol);
-
-            // Añadir la fila al contenedor de reportes
-            reportesContainer.appendChild(row);
-        });
-    } catch (error) {
-        console.error('Error:', error.message);
-    }
-})();
-    </script>
+          } catch (error) {
+              console.error('Error al obtener los reportes:', error.message);
+              // Aquí podrías mostrar un mensaje de error al usuario
+          }
+      });
+  </script>
 </body>
 </html>
