@@ -26,31 +26,14 @@
         </form>
     </div>
 
-        <!-- Modal -->
-        <!-- <div id="modal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <form class="forgot-password-form">
-                    <h2>Recuperar Contraseña</h2>
-                    <div class="input-group">
-                        <label for="email">Correo Electrónico</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <button type="submit">Enviar</button>
-                </form>
-            </div>
-        </div> -->
-
-
-
     <!-- Modal para Mostrar Mensajes -->
     <div id="myModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <p id="modalMessage"></p>
+            <p id="modalMessage">Código o clave incorrectos.</p> <!-- Mensaje fijo -->
         </div>
     </div>
-    <!-- <script src="../JScript/jscrip_recuerar_clave.js"></script> -->
+
     <!-- Incluir el archivo JavaScript personalizado -->
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function(event) {
@@ -80,33 +63,36 @@
                     // Redirigir a la página de destino
                     window.location.href = '../landing/landing_user.html';
                 } else {
-                    // Mostrar mensaje de error en caso de credenciales incorrectas
-                    //window.location.href = '/cogedon/public/landing/landing_user.html';
-                    showModal('Código o clave incorrectos.');
+                    // Mostrar el modal con mensaje fijo
+                    showModal();
                 }
 
             } catch (error) {
                 console.error('Error al enviar la solicitud:', error);
-                showModal('Error al iniciar sesión: ' + error.message);
+                showModal();
             }
         });
 
-        function showModal(message) {
+        function showModal() {
             var modal = document.getElementById('myModal');
-            var modalMessage = document.getElementById('modalMessage');
-            modalMessage.innerHTML = message;
-            modal.style.display = 'block';
-
+            modal.style.display = 'flex'; // Mostrar el modal
             var closeBtn = document.getElementsByClassName('close')[0];
             closeBtn.onclick = function() {
                 modal.style.display = 'none';
+                limpiarCampos(); // Limpia los campos al cerrar el modal
             };
 
             window.onclick = function(event) {
                 if (event.target == modal) {
                     modal.style.display = 'none';
+                    limpiarCampos(); // Limpia los campos al cerrar el modal
                 }
             };
+        }
+
+        function limpiarCampos() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
         }
     </script>
 </body>

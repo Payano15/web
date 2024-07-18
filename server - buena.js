@@ -20,14 +20,7 @@ app.use(session({
     cookie: { secure: false } // Cambiar a true si usas HTTPS
 }));
 
-// Configuración de CORS para permitir solicitudes desde la página web
-const corsOptions = {
-    origin: '*', // Permitir solicitudes desde cualquier origen (configurar según necesidades)
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type']
-};
-app.use(cors(corsOptions));
-
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -115,6 +108,7 @@ app.post('/register', async (req, res) => {
         await sql.close();
     }
 });
+
 // Inicio de sesión de usuarios
 app.post('/login', async (req, res) => {
     const { codigo, clave } = req.body;
@@ -138,7 +132,7 @@ app.post('/login', async (req, res) => {
         request.input('clave', sql.VarChar, clave);
 
         const result = await request.query(query);
-
+        
         if (result.recordset.length === 0) {
             return res.status(404).json({ success: false, message: 'Código o clave incorrectos.' });
         }
@@ -166,17 +160,17 @@ app.post('/login', async (req, res) => {
 
 // Ruta para manejar la subida de reportes
 app.post('/reporte', upload.single('imageUpload'), async (req, res) => {
-    const { longitude, latitude, comment, enubasu, province } = req.body;
+    const { longitude, latitude, comment, enubasu, province } = req.body; // Incluyendo 'province'
 
     try {
         const pool = await connectToDatabase();
 
         // Obtener el último idUsuario registrado en temp_usuarios_log
-        const getLastUserIdQuery =
-            `SELECT TOP 1 idUsuario
+        const getLastUserIdQuery = `
+            SELECT TOP 1 idUsuario
             FROM temp_usuarios_log
-            ORDER BY id DESC;`;
-
+            ORDER BY id DESC;
+        `;
         const getLastUserIdRequest = new sql.Request(pool);
         const lastUserIdResult = await getLastUserIdRequest.query(getLastUserIdQuery);
 
@@ -196,12 +190,12 @@ app.post('/reporte', upload.single('imageUpload'), async (req, res) => {
         request.input('estatus', sql.VarChar(50), 'ACT');
         request.input('pais', sql.VarChar(50), 'Republica Dominicana');
         request.input('enubasu', sql.VarChar(10), enubasu);
-        request.input('provincia', sql.VarChar(100), province);
+        request.input('provincia', sql.VarChar(100), province); // Agregando 'province'
 
-        const result = await request.query(
-            `INSERT INTO reporte_usuarios (idusuarios, longitud, latitud, Comment, ImagePath, fecha_reporte, estatus, pais, enubasu, provincia)
-            VALUES (@idUsuario, @longitude, @latitude, @comment, @imagePath, @fecha_reporte, @estatus, @pais, @enubasu, @provincia);`
-        );
+        const result = await request.query(`
+            INSERT INTO reporte_usuarios (idusuarios, longitud, latitud, Comment, ImagePath, fecha_reporte, estatus, pais, enubasu, provincia)
+            VALUES (@idUsuario, @latitude, @longitude, @comment, @imagePath, @fecha_reporte, @estatus, @pais, @enubasu, @provincia)
+        `);
 
         res.json({ message: 'Reporte guardado con éxito' });
     } catch (error) {
@@ -213,30 +207,35 @@ app.post('/reporte', upload.single('imageUpload'), async (req, res) => {
 // Ruta para filtrar reportes
 app.post('/filtrados', async (req, res) => {
     const { fechaDesde, fechaHasta } = req.body;
+    console.log('Fechas recibidas:', fechaDesde, fechaHasta); // Debugging
 
     try {
         const pool = await connectToDatabase();
 
-        const query =
-            `SELECT 
-                rp.id AS numeroReporte,
-                CONCAT(ru.nombre, ' ', ru.apellido) AS nombreApellido,
+        const query = `
+            SELECT 
+                rp.id AS numeroReporte, 
+                ru.nombre + ' ' + ru.apellido AS nombreApellido,
                 rp.estatus,
                 ru.direccion,
-                format(rp.fecha_reporte,'dd/MM/yyyy') AS fechaReporte,
+                rp.fecha_reporte AS fechaReporte,
                 rp.Comment AS comentario
             FROM reporte_usuarios rp
             JOIN resgitro_usuarios ru ON rp.idusuarios = ru.id
-            WHERE rp.fecha_reporte BETWEEN @fechaDesde AND @fechaHasta`;
+            WHERE rp.fecha_reporte BETWEEN @fechaDesde AND @fechaHasta
+        `;
+        
+        console.log('Consulta ejecutada:', query); // Debugging
 
         const request = new sql.Request(pool);
         request.input('fechaDesde', sql.Date, fechaDesde);
         request.input('fechaHasta', sql.Date, fechaHasta);
 
         const result = await request.query(query);
+        console.log('Reportes obtenidos:', result.recordset); // Debugging
         res.json(result.recordset);
     } catch (error) {
-        console.error('Error al filtrar reportes:', error.message);
+        console.error('Error al filtrar reportes:', error); // Debugging
         res.status(500).send('Error al obtener los reportes');
     }
 });
